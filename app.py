@@ -2,36 +2,33 @@
 import streamlit as st
 from transformers import pipeline
 
-# Tiny & fast models that NEVER fail on Streamlit free
-toxicity = pipeline("text-classification", model="martin-ha/toxic-comment-model")   # tiny & fast
-sentiment = pipeline("sentiment-analysis", model="cardiffnlp/twitter-roberta-base-sentiment-latest")
+# BEST tiny model for toxicity that actually works
+toxicity = pipeline("text-classification", 
+                    model="lxyuan/distilbert-base-multilingual-cased-toxic")
 
 st.set_page_config(page_title="SafeGen", page_icon="Shield")
 
-st.title("SafeGen – Hallucination & Bias Checker")
-st.caption("Made for Indian freelancers & small teams | Free to try | ₹399/month later")
+st.title("SafeGen – AI Output Safety Checker")
+st.caption("Built for Indian freelancers | Free trial | ₹399/month later")
 
-text = st.text_area("Paste any AI-generated text (ChatGPT, Gemini, etc.)", height=150)
+text = st.text_area("Paste any AI-generated text here", height=150)
 
 if st.button("Check Safety", type="primary"):
-    with st.spinner("Checking..."):
-        tox = toxicity(text)[0]
-        sent = sentiment(text)[0]
+    with st.spinner("Analyzing..."):
+        result = toxicity(text)[0]
+        score = result['score']
+        label = result['label']
 
-        risk_score = 0
-        if tox['label'] == 'toxic' and tox['score'] > 0.6:
-            risk_score += 1
-        if sent['label'] in ['NEGATIVE', 'neg']:
-            risk_score += 0.5
-
-        if risk_score >= 1:
-            st.error(f"High Risk Detected! (Score: {risk_score:.1f}/1.5)")
+        # This model uses "toxic" and "non-toxic"
+        if label == "toxic" and score > 0.7:
+            st.error(f"High Risk – Toxic/Biased Output! (Confidence: {score:.2f})")
+            st.write("Warning: Do NOT send this to clients")
             st.write("Fix: Add 'Answer politely and professionally' to your prompt")
-        elif risk_score >= 0.5:
-            st.warning(f"Medium Risk (Score: {risk_score:.1f}/1.5)")
-            st.write("Consider rephrasing for safer tone")
+        elif label == "toxic":
+            st.warning(f"Medium Risk (Confidence: {score:.2f}) – Consider rephrasing")
         else:
             st.success("Safe & Professional!")
             st.balloons()
+
 st.markdown("---")
-st.markdown("Built by an Indian solo founder • [Follow on X](https://x.com/yourusername) • ₹399/month after 50 free checks")
+st.markdown("Solo Indian founder • Free for first 100 users • ₹399/month after")
