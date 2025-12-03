@@ -1,104 +1,88 @@
 import streamlit as st
-import torch
 from transformers import pipeline
+import time
 
+# ───── TINY & FAST MODELS (load in 15–25 seconds on free tier) ─────
 @st.cache_resource
 def load_models():
-    toxicity = pipeline("text-classification", 
-                       model="cardiffnlp/twitter-roberta-base-sentiment-latest",  # Tiny model
-                       device=-1,  # Force CPU
-                       torch_dtype=torch.float32)  # Explicit dtype for 3.13
-    hate = pipeline("text-classification", 
-                   model="nlptown/bert-base-multilingual-uncased-sentiment",
-                   device=-1,  # Force CPU
-                   torch_dtype=torch.float32)
+    with st.spinner("First time loading tiny AI models… (15–25 sec only once)"):
+        # Super lightweight toxicity + bias detector
+        toxicity = pipeline(
+            "text-classification",
+            model="lxyuan/distilbert-base-multilingual-cased-toxicity",
+            device=-1  # CPU only
+        )
+        # Extra sentiment/hate check (tiny model)
+        hate = pipeline(
+            "text-classification",
+            model="cardiffnlp/twitter-roberta-base-sentiment-latest",
+            device=-1
+        )
     return toxicity, hate
 
 toxicity, hate = load_models()
 
-# Show loading progress (makes it feel faster)
-with st.spinner("Loading AI models... (first time only, ~20 seconds)"):
-    pass  # Models already cached above
-
-st.title("🛡️ SafeGen – AI Bias & Toxicity Checker")
-st.markdown("**Made for Indian freelancers & devs** | ₹0 today, ₹399/month later")
-
-text = st.text_area("Paste your AI-generated text (ChatGPT, Claude, etc.)", height=180)
-
-# Word & character counter (people love this!)
-words = len(text.split()) if text else 0
-chars = len(text)
-
-st.caption(f"📊 {words} words | {chars} characters")
-
-# Add these right after the existing code (before the final "if st.button")
-
-# 1. History – users love seeing past checks
+# ───── HISTORY & SESSION STATE ─────
 if 'history' not in st.session_state:
     st.session_state.history = []
 
-# 2. Copy button for cleaned/safe version
-if st.button("Copy Safe Version"):
-    st.write("Copy this improved prompt instead:")
-    safe_prompt = text + "\n\nAnswer factually, professionally and without any bias."
-    st.code(safe_prompt)
-    st.success("Copied to clipboard!")
-
-# 3. Save result to history
-def add_to_history(text, risk):
+def add_to_history(text, verdict):
     st.session_state.history.append({
-        "text": text[:100] + "..." if len(text)>100 else text,
-        "risk": risk,
-        "time": st.time.strftime("%H:%M")
+        "text": text[:80] + "..." if len(text)>80 else text,
+        "verdict": verdict,
+        "time": time.strftime("%H:%M")
     })
 
-# After the risk check → call add_to_history
-if risk_score > 0.7:
-    # ... existing error code ...
-    add_to_history(text, "HIGH")
-elif risk_score > 0.4:
-    # ... existing warning ...
-    add_to_history(text, "MEDIUM")
-else:
-    # ... existing success ...
-    add_to_history(text, "SAFE")
+# ───── MAIN UI ─────
+st.title("SafeGen – AI Bias & Toxicity Checker")
+st.markdown("**Made for Indian freelancers & devs** | Free trial → ₹399/month later")
 
-# 4. Show history sidebar
+text = st.text_area("Paste any AI output (ChatGPT, Claude, Gemini…)", height=180)
+
+words = len(text.split()) if text else 0
+chars = len(text)
+st.caption(f"Words: {words} | Characters: {chars}")
+
+col1, col2 = st.columns(2)
+with col1:
+    check = st.button("Check for Bias & Toxicity", type="primary")
+with col2:
+    copy_safe = st.button("Copy Safe Version")
+
+if check and text:
+    with st.spinner("Checking…"):
+        t = toxicity(text)[0]
+        h = hate(text)[0]
+        score = max(t['score'], h['score'] if 'score' in h else 0)
+
+        if score > 0.75:
+            st.error(f"HIGH RISK! Confidence: {score:.2f}")
+            verdict = "HIGH RISK"
+        elif score > 0.45:
+            st.warning(f"Moderate risk – review before sending ({score:.2f})")
+            verdict = "MODERATE"
+        else:
+            st.success("SAFE – Good to send to client!")
+            verdict = "SAFE"
+        
+        add_to_history(text, verdict)
+
+if copy_safe and text:
+    safe_text = text + "\n\n[Add this line → Answer factually, professionally and without any bias or toxic language.]"
+    st.code(safe_text)
+    st.success("Copied! Paste this improved version")
+
+# ───── SIDEBAR HISTORY ─────
 with st.sidebar:
     st.header("Recent Checks")
-    for i, h in enumerate(reversed(st.session_state.history[-10:])):
-        if h["risk"] == "HIGH":
+    for h in reversed(st.session_state.history[-10:]):
+        if h["verdict"] == "HIGH RISK":
             st.error(f"{h['time']} – High risk")
-        elif h["risk"] == "MEDIUM":
-            st.warning(f"{h['time']} – Medium")
+        elif h["verdict"] == "MODERATE":
+            st.warning(f"{h['time']} – Moderate")
         else:
             st.success(f"{h['time']} – Safe")
 
-# 5. Download report button (people share this on WhatsApp groups!)
-if st.button("Download Report as TXT"):
-    report = f"SafeGen Report\nChecked: {st.time.strftime('%Y-%m-%d %H:%M')}\nRisk: {risk_score:.2f}\nText length: {words} words\nVerdict: {'HIGH RISK' if risk_score>0.7 else 'Moderate' if risk_score>0.4 else 'SAFE'}"
-    st.download_button("Download Report", report, "safegen_report.txt")
-
-# 6. Final polish – footer
+# ───── FOOTER ─────
 st.markdown("---")
-st.caption("Made with ❤️ by an Indian solo founder | ₹399/month after 50 free checks")
-
-if st.button("🔍 Check for Bias & Toxicity", type="primary"):
-    
-
-    if not text.strip():
-        st.warning("Please paste some text first!")
-    else:
-        with st.spinner("Checking..."):
-            t = toxicity(text)[0]
-            h = hate(text)[0]
-            
-            risk_score = max(t['score'], h['score'])
-            
-            if risk_score > 0.7:
-                st.error(f"⚠️ HIGH RISK DETECTED! Confidence: {risk_score:.2f}")
-                st.write("Fix tip: Add 'Answer politely and professionally' to your prompt")
-            elif risk_score > 0.4:
-                st.warning(f"⚡ Moderate risk ({risk_score:.2f}) – review before sending")
-            else:
-                st.success("✅ Looks safe! Good to send")
+st.caption("Built in 2 days by an Indian solo founder ❤️ | ₹399/month after 100 free checks")
