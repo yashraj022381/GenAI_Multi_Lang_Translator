@@ -35,7 +35,9 @@ st.caption(f"📊 {words} words | {chars} characters")
 
 # Add these right after the existing code (before the final "if st.button")
 
-# 1. History – users love seeing past checks
+if st.button("🔍 Check for Bias & Toxicity", type="primary"):
+
+    # 1. History – users love seeing past checks
 if 'history' not in st.session_state:
     st.session_state.history = []
 
@@ -85,9 +87,6 @@ if st.button("Download Report as TXT"):
 st.markdown("---")
 st.caption("Made with ❤️ by an Indian solo founder | ₹399/month after 50 free checks")
 
-if st.button("🔍 Check for Bias & Toxicity", type="primary"):
-
-    
     if not text.strip():
         st.warning("Please paste some text first!")
     else:
