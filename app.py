@@ -26,7 +26,6 @@ st.set_page_config(page_title="SafeGen – AI Bias Checker", page_icon="🛡️"
 st.title("🛡️ SafeGen – AI Bias & Toxicity Checker")
 st.markdown("**Made for Indian freelancers & developers** | Free to try • ₹399/month later")
 
-text")
 
 text = st.text_area("Paste any AI-generated text (ChatGPT, Claude, Gemini, etc.)", height=180)
 
