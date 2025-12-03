@@ -20,7 +20,7 @@ def load_models():
         toxicity, hate = load_models()
     return toxicity, hate
 
-#toxicity, hate = load_models()
+toxicity, hate = load_models()
 
 # ----------------------------------- UI STARTS HERE -----------------------------------
 st.set_page_config(page_title="SafeGen – AI Bias Checker", page_icon="🛡️")
