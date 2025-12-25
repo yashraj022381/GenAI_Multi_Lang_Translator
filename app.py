@@ -1,5 +1,5 @@
 import streamlit as st
-from langchain_groq import ChatOpenAI
+from langchain_groq import ChatGroq
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import RunnablePassthrough
@@ -48,7 +48,7 @@ if prompt := st.chat_input("Ask me anything about problems in India..."):
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             # Set up LangChain
-            llm = ChatOpenAI(model="llma-3.1-70b-versatile", api_key=api_key)  # Cheap and good model
+            llm = ChatGroq(model="llma-3.1-70b-versatile", api_key=api_key)  # Cheap and good model
 
             prompt_template = ChatPromptTemplate.from_messages([
                 ("system", system_prompt),
