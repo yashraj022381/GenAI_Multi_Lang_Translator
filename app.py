@@ -1,32 +1,27 @@
 import streamlit as st
-from langchain_groq import ChatGroq
+from langchain_openai import ChatGroq
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
-import os
-api_key = st.secrets["GROQ_API_KEY"]
 
 # Set up page config
 st.set_page_config(page_title="India Helper AI Chatbot", page_icon="🇮🇳")
 st.title("🇮🇳 India Problem Solver AI Agent")
 
-# Sidebar for API key (keep it secret!)
-#api_key = st.sidebar.text_input(" ", type="password")
-#if not api_key:
-    #st.info("Please add your OpenAI API key in the sidebar to continue.")
-    #st.stop()
+# === FIX STARTS HERE: Initialize session state FIRST ===
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-# System prompt - customize this for India-specific problems!
+# Get API key from secrets (for Streamlit Cloud)
+api_key = st.secrets["GROQ_API_KEY"]
+
+# System prompt
 system_prompt = """
 You are a helpful AI assistant focused on solving real-life problems for people in India.
 Answer in simple English or Hindi if needed. Cover topics like jobs, education, farming, health, government schemes, etc.
 Be empathetic and practical.
 """
-
-# Initialize chat history in session state
-if "messages" not in st.session_state:
-    st.session_state.messages = []
 
 # Display chat history
 for message in st.session_state.messages:
@@ -47,8 +42,7 @@ if prompt := st.chat_input("Ask me anything about problems in India..."):
     # Generate response
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
-            # Set up LangChain
-            llm = ChatGroq(model="llma-3.1-70b-versatile", api_key=api_key)  # Cheap and good model
+            llm = ChatOpenAI(model="gpt-4o-mini", api_key=api_key)
 
             prompt_template = ChatPromptTemplate.from_messages([
                 ("system", system_prompt),
@@ -57,7 +51,8 @@ if prompt := st.chat_input("Ask me anything about problems in India..."):
             ])
 
             chain = (
-                {"input": RunnablePassthrough(), "chat_history": lambda x: st.session_state.messages[:-1]}
+                {"input": RunnablePassthrough(), 
+                 "chat_history": lambda x: st.session_state.messages[:-1]}
                 | prompt_template
                 | llm
                 | StrOutputParser()
