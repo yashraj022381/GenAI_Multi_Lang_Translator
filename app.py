@@ -1,97 +1,70 @@
 import streamlit as st
-import torch
-from transformers import pipeline
-import time
+from langchain_groq import ChatOpenAI
+from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
+import os
+api_key = st.secrets["GROQ_API_KEY"]
 
-# -------------------------- TINY & FAST MODELS (NO TORCH NEEDED) --------------------------
-@st.cache_resource
-def load_models():
-        # These two models are < 100 MB total and work perfectly on Streamlit free tier
-        toxicity = pipeline("text-classification",
-            model="distilbert-base-uncased-finetuned-sst-2-english",
-            device=-1)
-    
-        hate = pipeline("text-classification",
-            model="nlptown/bert-base-multilingual-uncased-sentiment",
-            device=-1)
-        
-        return toxicity, hate
+# Set up page config
+st.set_page_config(page_title="India Helper AI Chatbot", page_icon="🇮🇳")
+st.title("🇮🇳 India Problem Solver AI Agent")
 
-toxicity, hate = load_models()
+# Sidebar for API key (keep it secret!)
+#api_key = st.sidebar.text_input(" ", type="password")
+#if not api_key:
+    #st.info("Please add your OpenAI API key in the sidebar to continue.")
+    #st.stop()
 
-with st.spinner("Loading tiny AI models (first time only, ~20 sec)..."):
-    pass
-# ----------------------------------- UI STARTS HERE -----------------------------------
-st.set_page_config(page_title="SafeGen – AI Bias Checker", page_icon="🛡️")
-st.title("🛡️ SafeGen – AI Bias & Toxicity Checker")
-st.markdown("**Made for Indian freelancers & developers** | Free to try • ₹399/month later")
+# System prompt - customize this for India-specific problems!
+system_prompt = """
+You are a helpful AI assistant focused on solving real-life problems for people in India.
+Answer in simple English or Hindi if needed. Cover topics like jobs, education, farming, health, government schemes, etc.
+Be empathetic and practical.
+"""
 
+# Initialize chat history in session state
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-text = st.text_area("Paste any AI-generated text (ChatGPT, Claude, Gemini, etc.)", height=180)
+# Display chat history
+for message in st.session_state.messages:
+    if isinstance(message, HumanMessage):
+        with st.chat_message("user"):
+            st.write(message.content)
+    elif isinstance(message, AIMessage):
+        with st.chat_message("assistant"):
+            st.write(message.content)
 
-# Word & character counter
-words = len(text.split()) if text else 0
-chars = len(text)
-st.caption(f"Words: {words} | Characters: {chars}")
+# Chat input
+if prompt := st.chat_input("Ask me anything about problems in India..."):
+    # Add user message
+    st.session_state.messages.append(HumanMessage(content=prompt))
+    with st.chat_message("user"):
+        st.write(prompt)
 
-# History
-if 'history' not in st.session_state:
-    st.session_state.history = []
+    # Generate response
+    with st.chat_message("assistant"):
+        with st.spinner("Thinking..."):
+            # Set up LangChain
+            llm = ChatOpenAI(model="llma-3.1-70b-versatile", api_key=api_key)  # Cheap and good model
 
-if st.button("Copy Safe Version"):
-    st.write("Copy this improved prompt instead: ")
-    safe_prompt = text + "\n\nAnswer factually, professionally and without any bias."
-    st.code(safe_prompt)
-    st.sucess("Copied to Clipboard!")
+            prompt_template = ChatPromptTemplate.from_messages([
+                ("system", system_prompt),
+                MessagesPlaceholder(variable_name="chat_history"),
+                ("human", "{input}"),
+            ])
 
-def add_to_history(text, verdict):
-    st.session_state.history.append({
-        "text": text[:100] + "..." if len(text)>100 else text,
-        "verdict": verdict,
-        "time": time.strftime("%H:%M")
-    })
+            chain = (
+                {"input": RunnablePassthrough(), "chat_history": lambda x: st.session_state.messages[:-1]}
+                | prompt_template
+                | llm
+                | StrOutputParser()
+            )
 
-if 'risk_score' not in st.session_state:
-    st.session_state.risk_score = 0.0
+            response = chain.invoke(prompt)
+            st.write(response)
 
-# Main Check Button
-if st.button("Check for Bias & Toxicity", type="primary"):
-    if not text.strip():
-        st.warning("Please paste some text first!")
-    else:
-        with st.spinner("Checking..."):
-            t = toxicity(text)[0]
-            h = hate(text)[0]
-            
-            risk = max(t['score'], h['score'])
-            st.session_state.risk_score = risk_score
-            
-            if risk > 0.7:
-                st.error(f"HIGH RISK DETECTED! Confidence: {risk_score:.2f%}")
-                st.write("Fix tip → Add: 'Answer professionally, factually and without any bias' to your prompt")
-                add_to_history(text, "HIGH")
-            elif risk > 0.4:
-                st.warning(f"Moderate risk ({risk:.2f%}) – review before sending client")
-                add_to_history(text, "MEDIUM")
-            else:
-                st.success("Looks perfectly safe! Good to send")
-                add_to_history(text, "SAFE")
-
-# Sidebar – Recent checks
-with st.sidebar:
-    st.header("Recent Checks")
-    for i, h in enumerate(reversed(st.session_state.history[-10:])):
-        if h["risk"] == "HIGH":
-            st.error(f"{h['time']} – High risk")
-        elif h["risk"] == "MEDIUM":
-            st.warning(f"{h['time']} – Medium")
-        else:
-            st.success(f"{h['time']} – Safe")
-
-if st.button("Download Report as TXT"):
-    report = f"SafeGen Report\nChecked: {time.strftime('%Y-%m-%d %H:%M')}\nRisk: {st.session_state.risk_score:.2f}\nText lengh: {words} words\nVerdict: {'HIGH RISK' if st.session_state_score>0.7 else 'Moderate' if st.session_state.risk_score>0.4 else 'SAFE'}"
-    st.download_button("Download Report", report, "safegen_report.txt")
-
-# Footer
-st.markdown("---")
-st.caption("Made with ❤️ by an Indian solo founder | ₹399/month after 100 free checks")
+    # Add AI response to history
+    st.session_state.messages.append(AIMessage(content=response))
