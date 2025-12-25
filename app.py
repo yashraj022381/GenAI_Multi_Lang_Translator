@@ -1,5 +1,5 @@
 import streamlit as st
-from langchain_openai import ChatGroq
+from langchain_groq import ChatGroq
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import RunnablePassthrough
