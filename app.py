@@ -87,21 +87,21 @@ if prompt := st.chat_input("यहाँ अपनी समस्या लि�
                 #temperature=0.7
             #)
 
-            prompt_template = ChatPromptTemplate.from_messages([
-                ("system", system_prompt),
-                MessagesPlaceholder(variable_name="chat_history"),
-                ("human", "{user_input}"),
-            ])
+         prompt_template = ChatPromptTemplate.from_messages([
+            ("system", system_prompt),
+            MessagesPlaceholder(variable_name="chat_history"),
+            ("human", "{user_input}"),
+        ])
 
-            chain = prompt_template | llm | StrOutputParser()
+        chain = prompt_template | llm | StrOutputParser()
 
-            chat_history_for_chain = st.session_state.messages[:-1]
+        chat_history_for_chain = st.session_state.messages[:-1]
 
-            response = chain.invoke({
-                "chat_history": chat_history_for_chain,
-                "user_input": prompt
-            })
+        response = chain.invoke({
+            "chat_history": chat_history_for_chain,
+            "user_input": prompt
+        })
 
-            st.markdown(response)
+        st.markdown(response)
 
-    st.session_state.messages.append(AIMessage(content=response))
+ st.session_state.messages.append(AIMessage(content=response))
