@@ -66,15 +66,16 @@ if prompt := st.chat_input("यहाँ अपनी समस्या लि�
         st.markdown(prompt)
 
     with st.chat_message("assistant"): 
-      # message_placeholder = st.empty()  # Create empty space
-        message_placeholder.markdown("टाइप कर रहा हूँ... ✍️")
-        message_placeholder.markdown(chain)
+        with st.spinner(message_placeholder):
+            message_placeholder = st.empty()  # Create empty space
+            message_placeholder.markdown("टाइप कर रहा हूँ... ✍️")
+            message_placeholder.markdown(chain)
 
         # Now generate response
-        llm = ChatGroq(..., model = "llama-3.1-8b-instant", 
-                       api_key=groq_api_key, 
-                       temperature=0.7
-                      )
+            llm = ChatGroq(..., model = "llama-3.1-8b-instant", 
+                           api_key=groq_api_key, 
+                           temperature=0.7
+                          )
         # ... chain code ...
 
         # responses = chain.invoke({...})
