@@ -68,7 +68,7 @@ if prompt := st.chat_input("यहाँ अपनी समस्या लि�
     with st.chat_message("assistant"): 
         message_placeholder = st.empty()  # Create empty space
         message_placeholder.markdown("टाइप कर रहा हूँ... ✍️")
-         message_placeholder.markdown(chain)
+        message_placeholder.markdown(chain)
 
         # Now generate response
         llm = ChatGroq(..., model = "llama-3.1-8b-instant", 
