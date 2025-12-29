@@ -76,10 +76,10 @@ if prompt := st.chat_input("यहाँ अपनी समस्या लि�
                       )
         # ... chain code ...
 
-        responses = chain.invoke({...})
+        # responses = chain.invoke({...})
 
         # Replace "typing" with real answer
-        message_placeholder.markdown(responses)
+        #message_placeholder.markdown(response)
             #llm = ChatGroq(
                 #model="llama-3.1-8b-instant",  # fast & good Hindi
                 # model="llama-3.1-70b-versatile",  # even better Hindi if you want (slightly slower)
@@ -98,8 +98,11 @@ if prompt := st.chat_input("यहाँ अपनी समस्या लि�
 
         response = chain.invoke({
             "chat_history": chat_history_for_chain,
-            "user_input": prompt
+            "user_input": prompt,
+            ...
+                    
         })
 
+        message_placeholder.markdown(response)
         st.markdown(response)
 st.session_state.messages.append(AIMessage(content=response))
