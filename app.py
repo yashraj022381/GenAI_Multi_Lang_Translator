@@ -99,8 +99,7 @@ if prompt := st.chat_input("यहाँ अपनी समस्या लि�
         response = chain.invoke({
             "chat_history": chat_history_for_chain,
             "user_input": prompt,
-            ...
-                    
+            "..."                
         })
 
         message_placeholder.markdown(response)
