@@ -103,17 +103,17 @@ if prompt := st.chat_input("यहाँ अपनी समस्या लि�
             )
 
             # Add search tool
-             tools = [DuckDuckGoSearchRun()]
+            tools = [DuckDuckGoSearchRun()]
 
            # Agent prompt for reasoning + tools
-             agent_prompt = PromptTemplate.from_template("""
+            agent_prompt = PromptTemplate.from_template("""
              {system_prompt}
     
               You have access to tools. Use them only if needed for the query.
     
               Chat history: {chat_history}
               User input: {user_input}
-             """)
+            """)
 
            # Create agent
             agent = create_react_agent(llm, tools, agent_prompt)
@@ -138,11 +138,11 @@ if prompt := st.chat_input("यहाँ अपनी समस्या लि�
 
     #st.session_state.messages.append(AIMessage(content=response))
             # Invoke agent with history
-             input_data = {
-                 "system_prompt": system_prompt,
-                 "chat_history": "\n".join([msg.content for msg in st.session_state.messages[:-1]]),
-                 "user_input": prompt
-             }
-             response = agent_executor.invoke(input_data)["output"]
+            input_data = {
+                "system_prompt": system_prompt,
+                "chat_history": "\n".join([msg.content for msg in st.session_state.messages[:-1]]),
+                "user_input": prompt
+            }
+            response = agent_executor.invoke(input_data)["output"]
 
-             st.markdown(response)
+            st.markdown(response)
