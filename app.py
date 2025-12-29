@@ -87,7 +87,7 @@ if prompt := st.chat_input("यहाँ अपनी समस्या लि�
                 #temperature=0.7
             #)
 
-         prompt_template = ChatPromptTemplate.from_messages([
+        prompt_template = ChatPromptTemplate.from_messages([
             ("system", system_prompt),
             MessagesPlaceholder(variable_name="chat_history"),
             ("human", "{user_input}"),
