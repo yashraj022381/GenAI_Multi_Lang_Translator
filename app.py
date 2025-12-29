@@ -5,7 +5,8 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
 from streamlit_mic_recorder import mic_recorder
 from langchain_community.tools import DuckDuckGoSearchRun
-from langchain.agents import create_react_agent, AgentExecutor
+from langchain.agents.react.agent import create_react_agent 
+from langchain.agents import AgentExecutor
 from langchain.prompts import PromptTemplate
 
 st.set_page_config(page_title="Bharat Helper AI Chatbot", page_icon="🇮🇳")
