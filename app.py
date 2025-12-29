@@ -76,16 +76,15 @@ if prompt := st.chat_input("यहाँ अपनी समस्या लि�
                       )
         # ... chain code ...
 
-        response = chain.invoke({...})
+        responses = chain.invoke({...})
 
         # Replace "typing" with real answer
-        message_placeholder.markdown(response)
+        message_placeholder.markdown(responses)
             #llm = ChatGroq(
                 #model="llama-3.1-8b-instant",  # fast & good Hindi
                 # model="llama-3.1-70b-versatile",  # even better Hindi if you want (slightly slower)
                 #api_key=groq_api_key,
-                #temperature=0.7
-            #)
+                #temperature=0.7#)
 
         prompt_template = ChatPromptTemplate.from_messages([
             ("system", system_prompt),
