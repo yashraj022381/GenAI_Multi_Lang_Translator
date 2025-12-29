@@ -66,7 +66,7 @@ if prompt := st.chat_input("यहाँ अपनी समस्या लि�
         st.markdown(prompt)
 
     with st.chat_message("assistant"): 
-        message_placeholder = st.empty()  # Create empty space
+      # message_placeholder = st.empty()  # Create empty space
         message_placeholder.markdown("टाइप कर रहा हूँ... ✍️")
         message_placeholder.markdown(chain)
 
@@ -99,7 +99,6 @@ if prompt := st.chat_input("यहाँ अपनी समस्या लि�
 
         response = chain.invoke({
             "chat_history": chat_history_for_chain,
-            
             "user_input": prompt                
         })
 
