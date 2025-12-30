@@ -81,7 +81,7 @@ if st.sidebar.button("🗑️ Clear Chat History"):
 # Welcome message on first load
 if not st.session_state.messages:
     welcome = "नमस्ते! 👋 मैं भारत हेल्पर हूँ।\n\nआप किसी भी समस्या के बारे में हिंदी या अंग्रेजी में पूछ सकते हैं - नौकरी, पढ़ाई, खेती, सरकारी योजना, स्वास्थ्य, या कुछ भी।\n\nक्या मदद चाहिए आज? \
-    \n\t Hello! 👋 I am Bharat Helper.\n\nI can help you in any problem you tell me that on in Hindi or English or in any language you like you can ask - Jobs, Study, Farming, Government Schemes, Health, all most anything \n \n So what help do you want to today?"
+    \n\t Hello! 👋 I am Bharat Helper.\n\nI can help you in any problem you tell me that on in Hindi or English or in any language you like you can ask - Jobs, Study, Farming, Government Schemes, Health, all most anything. \n \n So what help do you want to today?"
     st.session_state.messages.append(AIMessage(content=welcome))
     with st.chat_message("assistant"):
         st.markdown(welcome)
@@ -130,8 +130,8 @@ if prompt := st.chat_input("यहाँ अपनी समस्या लि�
                 "chat_history": chat_history_for_chain,
                 "user_input": prompt 
             })
-            st.markdown(response)
-    st.session_state.messages.append(AIMessage(content=full_answer))
+            st.markdown(final_response)
+    st.session_state.messages.append(AIMessage(content=final_response))
     #st.session_state.messages.append(AIMessage(content=response))
             # Invoke agent with history
            # input_data = {
