@@ -11,13 +11,13 @@ st.title("🇮🇳 भारत हेल्पर AI - अपनी भाष�
 
 # Sidebar
 st.sidebar.markdown("**# 🇮🇳 भारत हेल्पर AI\nBharat Helper AI**")
-st.sidebar.markdown("**🌟 बनाया\nCreated by:** Yashraj")
+st.sidebar.markdown("**🌟 बनाया\Created by:** Yashraj")
 st.sidebar.markdown("**📧 सपोर्ट\Support:** your.email@gmail.com")
 st.sidebar.markdown("**⚡ Powered by:** Groq + Llama 3.1")
-st.sidebar.markdown("**🌍 भाषाएँ:** हिंदी, मराठी, বাংলা, ਪੰਜਾਬੀ, தமிழ், తెలుగు और अधिक\nLanguages: Hindi, Marathi, Bengali, Punjabi, Tamil, Telugu and more")
+st.sidebar.markdown("**🌍 भाषाएँ:** हिंदी, मराठी, বাংলা, ਪੰਜਾਬੀ, தமிழ், తెలుగు और अधिक\Languages: Hindi, Marathi, Bengali, Punjabi, Tamil, Telugu and more")
 
 # Clear chat
-if st.sidebar.button("🗑️ चैट हिस्ट्री साफ़ करें\nClear Chat History"):
+if st.sidebar.button("🗑️ चैट हिस्ट्री साफ़ करें\Clear Chat History"):
     st.session_state.messages = []
     st.rerun()
 
@@ -29,7 +29,7 @@ if "messages" not in st.session_state:
 try:
     groq_api_key = st.secrets["GROQ_API_KEY"]
 except:
-    st.error("⚠️ GROQ_API_KEY नहीं मिला। Secrets में जोड़ें।")
+    st.error("⚠️ GROQ_API_KEY नहीं मिला। Secrets में जोड़ें।\nGROQ_API_KEY not found. Please add it to Secrets")
     st.stop()
 
 # Super multilingual system prompt
