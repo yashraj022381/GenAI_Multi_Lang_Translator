@@ -6,4 +6,4 @@ langchain-core
 langchain-community
 streamlit-mic-recorder
 elevenlabs
---upgrade pip
+pip install --upgrade pip
