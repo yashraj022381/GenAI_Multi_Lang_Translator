@@ -4,7 +4,7 @@ from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
 from streamlit_mic_recorder import mic_recorder
-from langchain_community.tools import DuckDuckGoSearchRun
+
 
 
 st.set_page_config(page_title="Bharat Helper AI Chatbot", page_icon="🇮🇳")
@@ -81,7 +81,7 @@ if st.sidebar.button("🗑️ Clear Chat History"):
 # Welcome message on first load
 if not st.session_state.messages:
     welcome = "नमस्ते! 👋 मैं भारत हेल्पर हूँ।\n\nआप किसी भी समस्या के बारे में हिंदी या अंग्रेजी में पूछ सकते हैं - नौकरी, पढ़ाई, खेती, सरकारी योजना, स्वास्थ्य, या कुछ भी।\n\nक्या मदद चाहिए आज? \
-    \n\t Hello! 👋 I am Bharat Helper.\n\nI can help you in any problem you tell me that on Hindi or English or in any language you can ask - Jobs, Study, Farming, Government Schemes, Health, all most anything \n \n So what help do you want to today?"
+    \n\t Hello! 👋 I am Bharat Helper.\n\nI can help you in any problem you tell me that on in Hindi or English or in any language you like you can ask - Jobs, Study, Farming, Government Schemes, Health, all most anything \n \n So what help do you want to today?"
     st.session_state.messages.append(AIMessage(content=welcome))
     with st.chat_message("assistant"):
         st.markdown(welcome)
@@ -94,8 +94,6 @@ if prompt := st.chat_input("यहाँ अपनी समस्या लि�
 
     with st.chat_message("assistant"):
         with st.spinner("सोच रहा हूँ...\nI am thinking..."):
-            needs_search = any(keyword in prompt.lower() for keyword in 
-                ["latest", "आज", "अभी", "ताजा", "नई", "update", "news", "कितना", "कीमत", "2025", "2026"])
             llm = ChatGroq(
                 model="llama-3.1-8b-instant",  # fast & good Hindi
                 # model="llama-3.1-70b-versatile",  # even better Hindi if you want (slightly slower)
@@ -103,12 +101,6 @@ if prompt := st.chat_input("यहाँ अपनी समस्या लि�
                 temperature=0.7
             )
 
-            response = ""
-            if needs_search:
-                with st.status("🔍 वेब पर ताज़ा जानकारी खोज रहा हूँ..."):
-                    search = DuckDuckGoSearchRun()
-                    search_result = search.run(prompt)
-                    response += f"**ताज़ा जानकारी (वेब से):**\\n{search_result}\\n\\n"
 
            # Agent prompt for reasoning + tools
             #agent_prompt = PromptTemplate.from_template("""
@@ -127,8 +119,7 @@ if prompt := st.chat_input("यहाँ अपनी समस्या लि�
             prompt_template = ChatPromptTemplate.from_messages([
                 ("system", system_prompt),
                 MessagesPlaceholder(variable_name="chat_history"),
-                ("human", "{user_input}"),
-                ("assistant", response) if needs_search else ("human", "{user_input}")
+                ("human", "{user_input}")
             ])
 
             chain = prompt_template | llm | StrOutputParser()
@@ -137,9 +128,8 @@ if prompt := st.chat_input("यहाँ अपनी समस्या लि�
 
             final_response = chain.invoke({
                 "chat_history": chat_history_for_chain,
-                "user_input": prompt + (f"\\n\\nवेब सर्च रिजल्ट: {search_result}" if needs_search else "")
+                "user_input": prompt 
             })
-            full_answer = response + final_response if needs_search else final_response
             st.markdown(response)
     st.session_state.messages.append(AIMessage(content=full_answer))
     #st.session_state.messages.append(AIMessage(content=response))
