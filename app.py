@@ -14,7 +14,7 @@ st.sidebar.markdown("**# 🇮🇳 भारत हेल्पर AI\nBharat Hel
 st.sidebar.markdown("**🌟 बनाया\Created by:** Yashraj")
 st.sidebar.markdown("**📧 सपोर्ट\Support:** your.email@gmail.com")
 st.sidebar.markdown("**⚡ Powered by:** Groq + Llama 3.1")
-st.sidebar.markdown("**🌍 भाषाएँ:** हिंदी, मराठी, বাংলা, ਪੰਜਾਬੀ, தமிழ், తెలుగు और अधिक\Languages: Hindi, Marathi, Bengali, Punjabi, Tamil, Telugu and more")
+st.sidebar.markdown("**🌍 भाषाएँ:** अंग्रेज़ी, हिंदी, मराठी, বাংলা, ਪੰਜਾਬੀ, தமிழ், తెలుగు और अधिक\nLanguages: English, Hindi, Marathi, Bengali, Punjabi, Tamil, Telugu and more")
 
 # Clear chat
 if st.sidebar.button("🗑️ चैट हिस्ट्री साफ़ करें\Clear Chat History"):
@@ -103,7 +103,7 @@ if audio:
     # Then proceed with adding to messages and generating response as before
 
 # User input
-if prompt := st.chat_input("अपनी भाषा में लिखें... (हिंदी, मराठी, বাংলা, ਪੰਜਾਬੀ, தமிழ் आदि)\n\nWrite in your own language... (Hindi, Marathi, Bengali, Punjabi, Tamil, etc.)"):
+if prompt := st.chat_input("अपनी भाषा में लिखें... (अंग्रेज़ी, हिंदी, मराठी, বাংলা, ਪੰਜਾਬੀ, தமிழ் आदि)\Write in your own language... (English, Hindi, Marathi, Bengali, Punjabi, Tamil, etc.)"):
     st.session_state.messages.append(HumanMessage(content=prompt))
     with st.chat_message("user"):
         st.markdown(prompt)
