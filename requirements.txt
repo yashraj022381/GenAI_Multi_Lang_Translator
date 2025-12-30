@@ -3,5 +3,4 @@ langchain
 langchain-groq
 langchain-core
 langchain-community
-duckduckgo-search
 streamlit-mic-recorder
