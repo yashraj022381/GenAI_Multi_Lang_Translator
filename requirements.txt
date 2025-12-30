@@ -1,7 +1,9 @@
 streamlit
 langchain
 langchain-groq
+groq
 langchain-core
 langchain-community
 streamlit-mic-recorder
 elevenlabs
+streamlit-experimental-audio-input
