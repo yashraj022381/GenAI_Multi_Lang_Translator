@@ -1,6 +1,9 @@
 ## GenAI_Multi_Lang_Translator
 ## SafeGenAI Multi-Language Translator
 
+ ## 🌐 Live Demo
+👉 **[Try it Live on Streamlit Cloud](https://safegenapp-shnjzs2t4hafjp4hlfidfu.streamlit.app/)**```
+
 - It's a Generative AI multi-language translator that works on both Streamlit and Gradio interfaces, you've updated/renamed aspects to incorporate "Safe Gen AI" (likely for    safer/responsible AI usage), and it runs successfully locally after setup.
 
 **SafeGenAI** is a modern, privacy-aware multi-language translation tool powered by Generative AI.  
