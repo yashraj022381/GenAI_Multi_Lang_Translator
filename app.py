@@ -95,8 +95,7 @@ if audio:
             file=(audio_path, file.read()),
             model="whisper-large-v3",
             response_format="text",
-            prompt = response_format,
-            language="hi" if "hindi" or "marathi" or "English" in prompt.lower() else "en"  # Auto-detect or set
+            language="hi" if "hindi" or "marathi" or "English" in response_format.lower() else "en"  # Auto-detect or set
         )
     prompt = transcription  # Use transcribed text as input
 
