@@ -97,7 +97,7 @@ if audio:
             response_format="text",
             language="hi" if "hindi" or "marathi" or "English" in prompt.lower() else "en"  # Auto-detect or set
         )
-    transcription = prompt  # Use transcribed text as input
+    prompt = transcription  # Use transcribed text as input
 
     # Then proceed with adding to messages and generating response as before
 
