@@ -83,75 +83,70 @@ for msg in st.session_state.messages:
 audio = mic_recorder(start_prompt="🎤 Start recording", stop_prompt="🛑 Stop", just_once = True, use_container_width = True, key='recorder')
 
 if audio and audio.get('bytes'):
-try:
-    # Detect real format from bytes header (mobile sends webm/ogg, desktop sends wav)
-    audio_bytes = audio['bytes']
+    try:
+        # Detect real format from bytes header (mobile sends webm/ogg, desktop sends wav)
+        audio_bytes = audio['bytes']
         
-    if audio_bytes[:4] == b'OggS':
-        ext = "ogg"
-        mime = "audio/ogg"
-    elif audio_bytes[:4] == b'\x1aE\xdf\xa3':
-        ext = "audio/webm"
-        mime = "audio/webm"
-    else:
-        ext = "wav"
-        mime = "audio/wav"
+        if audio_bytes[:4] == b'OggS':
+            ext = "ogg"
+            mime = "audio/ogg"
+        elif audio_bytes[:4] == b'\x1aE\xdf\xa3':
+            ext = "audio/webm"
+            mime = "audio/webm"
+        else:
+            ext = "wav"
+            mime = "audio/wav"
 
-    audio_filename = f"temp_audio.{ext}"
+        audio_filename = f"temp_audio.{ext}"
 
-    with open(audio_filename, "wb") as f:
-        f.write(audio_bytes)
+        with open(audio_filename, "wb") as f:
+            f.write(audio_bytes)
 
-
-    # Transcribe with Groq Whisper (add your Groq key if not already)
-    client = Groq(api_key=groq_api_key)
-    with open(audio_path, "rb") as file:
-        transcription = client.audio.transcriptions.create(
-            file=(audio_path, file.read()),
-            model="whisper-large-v3",
-            response_format="text",
-        )
-    prompt = transcription.strip()  # Use transcribed text as input
-
-    # Then proceed with adding to messages and generating response as before
-
-# User input
-if prompt := st.chat_input("अपनी भाषा में लिखें... (अंग्रेज़ी, हिंदी, मराठी, বাংলা, ਪੰਜਾਬੀ, தமிழ் आदि)\Write in your own language... (English, Hindi, Marathi, Bengali, Punjabi, Tamil, etc.)"):
-    st.session_state.messages.append(HumanMessage(content=prompt))
-    with st.chat_message("user"):
-        st.markdown(prompt)
-
-    with st.chat_message("assistant"):
-        with st.spinner("जवाब दे रहा हूँ...\n\nI am responding..."):
-            # Use slightly smarter model for better language handling
-            llm = ChatGroq(
-                model="llama-3.3-70b-versatile",  # Better at Indian languages than 8b
-                # model="llama-3.1-8b-instant",  # Use this if you want max speed
-                api_key=groq_api_key,
-                temperature=0.7,
+        # Transcribe with Groq Whisper (add your Groq key if not already)
+        client = Groq(api_key=groq_api_key)
+        with open(audio_path, "rb") as file:
+            transcription = client.audio.transcriptions.create(
+                file=(audio_path, file.read()),
+                model="whisper-large-v3",
+                response_format="text",
             )
+        prompt = transcription.strip()  # Use transcribed text as input
 
-            template = ChatPromptTemplate.from_messages([
-                ("system", system_prompt),
-                MessagesPlaceholder("chat_history"),
-                ("human", "{input}")
-            ])
+        # Then proceed with adding to messages and generating response as before
 
-            chain = template | llm | StrOutputParser()
+        # User input
+        if prompt := st.chat_input("अपनी भाषा में लिखें... (अंग्रेज़ी, हिंदी, मराठी, বাংলা, ਪੰਜਾਬੀ, தமிழ் आदि)\Write in your own language... (English, Hindi, Marathi, Bengali, Punjabi, Tamil, etc.)"):
+            st.session_state.messages.append(HumanMessage(content=prompt))
+            with st.chat_message("user"):
+                st.markdown(prompt)
 
-            history = st.session_state.messages[:-1]
+            with st.chat_message("assistant"):
+                with st.spinner("जवाब दे रहा हूँ...\n\nI am responding..."):
+                    # Use slightly smarter model for better language handling
+                    llm = ChatGroq(
+                        model="llama-3.3-70b-versatile",  # Better at Indian languages than 8b
+                # model="llama-3.1-8b-instant",  # Use this if you want max speed
+                        api_key=groq_api_key,
+                        temperature=0.7,
+                    )
+                    template = ChatPromptTemplate.from_messages([
+                        ("system", system_prompt),
+                        MessagesPlaceholder("chat_history"),
+                        ("human", "{input}")
+                    ])
+                    chain = template | llm | StrOutputParser()
+                    history = st.session_state.messages[:-1]
 
-            response = chain.invoke({
-                "chat_history": history,
-                "input": prompt
-            })
+                    response = chain.invoke({
+                        "chat_history": history,
+                        "input": prompt
+                    })
 
-            st.markdown(response)
-
-    st.session_state.messages.append(AIMessage(content=response))
-    st.rerun()
-else:
-    st.warning("⚠️ आवाज़ नहीं सुनाई दी। फिर से बोलें। / Audio not detected. Please try again.")
-
-except Exception as e:
+                    st.markdown(response)
+                    
+            st.session_state.messages.append(AIMessage(content=response))
+            st.rerun()
+        else:
+            st.warning("⚠️ आवाज़ नहीं सुनाई दी। फिर से बोलें। / Audio not detected. Please try again.")
+    except Exception as e:
         st.error(f"🎤 माइक में गड़बड़ी / Mic error: {str(e)}")
