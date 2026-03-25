@@ -95,7 +95,6 @@ if audio:
             file=(audio_path, file.read()),
             model="whisper-large-v3",
             response_format="text",
-            language="hi" if "hindi" or "marathi" or "English" in prompt.lower() else "en"  # Auto-detect or set
         )
     prompt = transcription  # Use transcribed text as input
 
@@ -135,3 +134,4 @@ if prompt := st.chat_input("अपनी भाषा में लिखें.
             st.markdown(response)
 
     st.session_state.messages.append(AIMessage(content=response))
+    st.rerun()
