@@ -78,6 +78,25 @@ for msg in st.session_state.messages:
             st.markdown(msg.content)
 
 # ... (after display history)
+def get_ai_response(prompt):
+     llm = ChatGroq(
+                model="llama-3.3-70b-versatile",  # Better at Indian languages than 8b
+                # model="llama-3.1-8b-instant",  # Use this if you want max speed
+                api_key=groq_api_key,
+                temperature=0.7,
+            )
+            template = ChatPromptTemplate.from_messages([
+                ("system", system_prompt),
+                MessagesPlaceholder("chat_history"),
+                ("human", "{input}")
+            ])
+            chain = template | llm | StrOutputParser()
+            history = st.session_state.messages[:-1]
+
+            response = chain.invoke({
+                "chat_history": history,
+                "input": prompt
+            })
 
 # Mic input button
 audio = mic_recorder(start_prompt="🎤 Start recording", stop_prompt="🛑 Stop", just_once = True, use_container_width = True, key='recorder')
@@ -114,39 +133,32 @@ if audio and audio.get('bytes'):
 
         # Then proceed with adding to messages and generating response as before
 
-        # User input
-        if prompt := st.chat_input("अपनी भाषा में लिखें... (अंग्रेज़ी, हिंदी, मराठी, বাংলা, ਪੰਜਾਬੀ, தமிழ் आदि)\Write in your own language... (English, Hindi, Marathi, Bengali, Punjabi, Tamil, etc.)"):
+         if prompt:
             st.session_state.messages.append(HumanMessage(content=prompt))
             with st.chat_message("user"):
-                st.markdown(prompt)
-
+                st.markdown(f"🎤 {prompt}")
             with st.chat_message("assistant"):
-                with st.spinner("जवाब दे रहा हूँ...\n\nI am responding..."):
-                    # Use slightly smarter model for better language handling
-                    llm = ChatGroq(
-                        model="llama-3.3-70b-versatile",  # Better at Indian languages than 8b
-                # model="llama-3.1-8b-instant",  # Use this if you want max speed
-                        api_key=groq_api_key,
-                        temperature=0.7,
-                    )
-                    template = ChatPromptTemplate.from_messages([
-                        ("system", system_prompt),
-                        MessagesPlaceholder("chat_history"),
-                        ("human", "{input}")
-                    ])
-                    chain = template | llm | StrOutputParser()
-                    history = st.session_state.messages[:-1]
-
-                    response = chain.invoke({
-                        "chat_history": history,
-                        "input": prompt
-                    })
-
+                with st.spinner("जवाब दे रहा हूँ... / Responding..."):
+                    response = get_ai_response(prompt)
                     st.markdown(response)
-                    
             st.session_state.messages.append(AIMessage(content=response))
             st.rerun()
         else:
             st.warning("⚠️ आवाज़ नहीं सुनाई दी। फिर से बोलें। / Audio not detected. Please try again.")
     except Exception as e:
-        st.error(f"🎤 माइक में गड़बड़ी / Mic error: {str(e)}")
+        st.error(f"🎤 माइक में गड़बड़ी / Mic error: {str(e)}")        
+
+# User input
+if prompt := st.chat_input("अपनी भाषा में लिखें... (अंग्रेज़ी, हिंदी, मराठी, বাংলা, ਪੰਜਾਬੀ, தமிழ் आदि)\Write in your own language... (English, Hindi, Marathi, Bengali, Punjabi, Tamil, etc.)"):
+    st.session_state.messages.append(HumanMessage(content=prompt))
+    with st.chat_message("user"):
+        st.markdown(prompt)
+    with st.chat_message("assistant"):
+        with st.spinner("जवाब दे रहा हूँ...\n\nI am responding..."):
+            # Use slightly smarter model for better language handling
+            response = get_ai_response(prompt)
+            st.markdown(response)
+                    
+    st.session_state.messages.append(AIMessage(content=response))
+        
+
