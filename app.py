@@ -80,13 +80,28 @@ for msg in st.session_state.messages:
 # ... (after display history)
 
 # Mic input button
-audio = mic_recorder(start_prompt="🎤 Start recording", stop_prompt="🛑 Stop", key='recorder')
+audio = mic_recorder(start_prompt="🎤 Start recording", stop_prompt="🛑 Stop", just_once = True, use_container_width = True, key='recorder')
 
-if audio:
-    # Save audio to temp file
-    audio_path = "temp_audio.wav"
-    with open(audio_path, "wb") as f:
-        f.write(audio['bytes'])
+if audio and audio.get('bytes'):
+try:
+    # Detect real format from bytes header (mobile sends webm/ogg, desktop sends wav)
+    audio_bytes = audio['bytes']
+        
+    if audio_bytes[:4] == b'OggS':
+        ext = "ogg"
+        mime = "audio/ogg"
+    elif audio_bytes[:4] == b'\x1aE\xdf\xa3':
+        ext = "audio/webm"
+        mime = "audio/webm"
+    else:
+        ext = "wav"
+        mime = "audio/wav"
+
+    audio_filename = f"temp_audio.{ext}"
+
+    with open(audio_filename, "wb") as f:
+        f.write(audio_bytes)
+
 
     # Transcribe with Groq Whisper (add your Groq key if not already)
     client = Groq(api_key=groq_api_key)
@@ -96,7 +111,7 @@ if audio:
             model="whisper-large-v3",
             response_format="text",
         )
-    prompt = transcription  # Use transcribed text as input
+    prompt = transcription.strip()  # Use transcribed text as input
 
     # Then proceed with adding to messages and generating response as before
 
@@ -135,3 +150,8 @@ if prompt := st.chat_input("अपनी भाषा में लिखें.
 
     st.session_state.messages.append(AIMessage(content=response))
     st.rerun()
+else:
+    st.warning("⚠️ आवाज़ नहीं सुनाई दी। फिर से बोलें। / Audio not detected. Please try again.")
+
+except Exception as e:
+        st.error(f"🎤 माइक में गड़बड़ी / Mic error: {str(e)}")
