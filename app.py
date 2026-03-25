@@ -4,6 +4,7 @@ from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
 from streamlit_mic_recorder import mic_recorder
+ from groq import Groq
 
 # Page config
 st.set_page_config(page_title="भारत हेल्पर AI\nBharat Helper AI", page_icon="🇮🇳")
@@ -88,7 +89,6 @@ if audio:
         f.write(audio['bytes'])
 
     # Transcribe with Groq Whisper (add your Groq key if not already)
-    from groq import Groq
     client = Groq(api_key=groq_api_key)
     with open(audio_path, "rb") as file:
         transcription = client.audio.transcriptions.create(
@@ -97,7 +97,7 @@ if audio:
             response_format="text",
             language="hi" if "hindi" or "marathi" or "English" in prompt.lower() else "en"  # Auto-detect or set
         )
-    prompt = transcription  # Use transcribed text as input
+    transcription = prompt  # Use transcribed text as input
 
     # Then proceed with adding to messages and generating response as before
 
