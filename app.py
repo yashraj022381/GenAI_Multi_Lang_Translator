@@ -79,24 +79,24 @@ for msg in st.session_state.messages:
 
 # ... (after display history)
 def get_ai_response(prompt):
-     llm = ChatGroq(
+    llm = ChatGroq(
                 model="llama-3.3-70b-versatile",  # Better at Indian languages than 8b
                 # model="llama-3.1-8b-instant",  # Use this if you want max speed
                 api_key=groq_api_key,
                 temperature=0.7,
-            )
-            template = ChatPromptTemplate.from_messages([
-                ("system", system_prompt),
-                MessagesPlaceholder("chat_history"),
-                ("human", "{input}")
-            ])
-            chain = template | llm | StrOutputParser()
-            history = st.session_state.messages[:-1]
+    )
+    template = ChatPromptTemplate.from_messages([
+        ("system", system_prompt),
+        MessagesPlaceholder("chat_history"),
+        ("human", "{input}")
+    ])
+    chain = template | llm | StrOutputParser()
+    history = st.session_state.messages[:-1]
 
-            response = chain.invoke({
-                "chat_history": history,
-                "input": prompt
-            })
+    response = chain.invoke({
+            "chat_history": history,
+            "input": prompt
+    })
 
 # Mic input button
 audio = mic_recorder(start_prompt="🎤 Start recording", stop_prompt="🛑 Stop", just_once = True, use_container_width = True, key='recorder')
