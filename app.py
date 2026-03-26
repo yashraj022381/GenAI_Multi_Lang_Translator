@@ -109,7 +109,7 @@ if audio and audio.get('bytes'):
         if audio_bytes[:4] == b'OggS':
             ext = "ogg"
             mime = "audio/ogg"
-        elif audio_bytes[:4] == b'\x1aE\xdf\xa3':
+        elif audio_bytes[0:4] == b'\x1aE\xdf\xa3' or audio_bytes[0:2] == b'\x1aE':
             ext = "audio/webm"
             mime = "audio/webm"
         else:
