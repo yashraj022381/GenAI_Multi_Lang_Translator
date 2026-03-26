@@ -127,9 +127,9 @@ if audio and audio.get('bytes'):
 
         # Transcribe with Groq Whisper (add your Groq key if not already)
         client = Groq(api_key=groq_api_key)
-        with open(audio_path, "rb") as file:
+        with open(audio_filename, "rb") as file:
             transcription = client.audio.transcriptions.create(
-                file=(audio_path, file.read()),
+                file=(audio_filename, file.read()),
                 model="whisper-large-v3",
                 response_format="text",
             )
