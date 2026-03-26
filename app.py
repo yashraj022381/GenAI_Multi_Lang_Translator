@@ -133,7 +133,7 @@ if audio and audio.get('bytes'):
 
         # Then proceed with adding to messages and generating response as before
 
-         if prompt:
+        if prompt:
             st.session_state.messages.append(HumanMessage(content=prompt))
             with st.chat_message("user"):
                 st.markdown(f"🎤 {prompt}")
