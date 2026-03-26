@@ -79,24 +79,27 @@ for msg in st.session_state.messages:
 
 # ... (after display history)
 def get_ai_response(prompt):
-    llm = ChatGroq(
-                model="llama-3.3-70b-versatile",  # Better at Indian languages than 8b
-                # model="llama-3.1-8b-instant",  # Use this if you want max speed
-                api_key=groq_api_key,
-                temperature=0.7,
-    )
-    template = ChatPromptTemplate.from_messages([
-        ("system", system_prompt),
-        MessagesPlaceholder("chat_history"),
-        ("human", "{input}")
-    ])
-    chain = template | llm | StrOutputParser()
-    history = st.session_state.messages[:-1]
-
-    response = chain.invoke({
+    try:
+        llm = ChatGroq(
+            model="llama-3.3-70b-versatile",  # Better at Indian languages than 8b
+            # model="llama-3.1-8b-instant",  # Use this if you want max speed
+            api_key=groq_api_key,
+            temperature=0.7,
+        )
+        template = ChatPromptTemplate.from_messages([
+            ("system", system_prompt),
+            MessagesPlaceholder("chat_history"),
+            ("human", "{input}")
+        ])
+        chain = template | llm | StrOutputParser()
+        history = st.session_state.messages[:-1]
+        result = chain.invoke({
             "chat_history": history,
             "input": prompt
-    })
+        })
+        return result if result else "माफ़ करें, जवाब नहीं मिला। / Sorry, no response received."
+    except:
+        return f"Error: {str(e)}"
 
 # Mic input button
 audio = mic_recorder(start_prompt="🎤 Start recording", stop_prompt="🛑 Stop", just_once = True, use_container_width = True, key='recorder')
@@ -161,8 +164,8 @@ if prompt := st.chat_input("अपनी भाषा में लिखें.
         with st.spinner("जवाब दे रहा हूँ...\n\nI am responding..."):
             # Use slightly smarter model for better language handling
             response = get_ai_response(prompt)
-            st.markdown(response)
-                    
-    st.session_state.messages.append(AIMessage(content=response))
+            if response:
+                st.markdown(response)
+                st.session_state.messages.append(AIMessage(content=str(response)))
         
 
