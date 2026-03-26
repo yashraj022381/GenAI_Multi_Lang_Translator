@@ -174,9 +174,17 @@ if audio and audio.get('bytes'):
                 response_format="text",
                 **({"language": selected_lang_code} if selected_lang_code else {})
             )
-        prompt = transcription2.strip()  # Use transcribed text as inpu
+        prompt = transcription2.strip()  # Use transcribed text as input
 
         # Then proceed with adding to messages and generating response as before
+
+        WHISPER_HALLUCINATIONS = [
+            "thank you", "thanks", "thank you.", "thanks.",
+            "धन्यवाद", "धन्यवाद।", "शुक्रिया",
+            ".", ",", "...", " ", "",
+            "you", "bye", "goodbye", "subscribe",
+            "नमस्ते", "ठीक है", "ok", "okay"
+        ]
 
         if prompt:
             st.session_state.messages.append(HumanMessage(content=prompt))
@@ -189,8 +197,9 @@ if audio and audio.get('bytes'):
             st.session_state.messages.append(AIMessage(content=response))
             st.session_state.mic_key_counter += 1
             st.rerun()
-        else:
-            st.warning("⚠️ आवाज़ नहीं सुनाई दी। फिर से बोलें। / Audio not detected. Please try again.")
+        elif not prompt or prompt.lower().strip(".").strip() in WHISPER_HALLUCINATIONS or len(prompt.strip()) < 3:
+            st.warning("⚠️ कुछ सुनाई नहीं दिया। फिर से बोलें। / Nothing detected. Please speak again.")
+            st.stop()
     except Exception as e:
         st.error(f"🎤 माइक में गड़बड़ी / Mic error: {str(e)}")        
 
