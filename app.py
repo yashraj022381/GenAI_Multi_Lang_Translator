@@ -169,7 +169,7 @@ if prompt := st.chat_input("अपनी भाषा में लिखें.
             if response:
                 st.markdown(response)
                 st.session_state.messages.append(AIMessage(content=str(response)))
-                st.session_state.mic_key_counter += 1
-                st.rerun()
+                        st.session_state.mic_key_counter += 1
+                        st.rerun()
         
 
