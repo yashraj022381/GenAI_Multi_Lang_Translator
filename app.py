@@ -146,9 +146,35 @@ if audio and audio.get('bytes'):
             transcription = client.audio.transcriptions.create(
                 file=(audio_filename, file.read()),
                 model="whisper-large-v3",
-                response_format="text",
+                response_format="verbose_json",
             )
-        prompt = transcription.strip()  # Use transcribed text as input
+
+        detected_lang = transcription.language
+        raw_text = transcription.text.strip()
+
+        speak_lang = st.selectbox(
+            "🗣️ बोलने की भाषा / Speaking language:",
+            options=["Auto", "Marathi", "Hindi", "English", "Bengali", 
+                     "Punjabi", "Tamil", "Telugu", "Gujarati", "Kannada"],
+            index=0
+        )
+        
+        LANG_CODE_MAP = {
+            "Auto": None, "Hindi": "hi", "Marathi": "mr",
+            "English": "en", "Bengali": "bn", "Punjabi": "pa",
+            "Tamil": "ta", "Telugu": "te", "Gujarati": "gu", "Kannada": "kn"
+        }
+            
+        selected_lang_code = LANG_CODE_MAP[speak_lang]
+        
+        with open(audio_filename, "rb") as file:
+            transcription2 = client.audio.transcriptions.create(
+                file=(audio_filename, file.read()),
+                model="whisper-large-v3",
+                response_format="text",
+                **({"language": selected_lang_code} if selected_lang_code else {})
+            )
+        prompt = transcription2.strip()  # Use transcribed text as inpu
 
         # Then proceed with adding to messages and generating response as before
 
