@@ -151,6 +151,7 @@ if audio and audio.get('bytes'):
                     response = get_ai_response(prompt)
                     st.markdown(response)
             st.session_state.messages.append(AIMessage(content=response))
+            st.session_state.mic_key_counter += 1
             st.rerun()
         else:
             st.warning("⚠️ आवाज़ नहीं सुनाई दी। फिर से बोलें। / Audio not detected. Please try again.")
@@ -169,7 +170,7 @@ if prompt := st.chat_input("अपनी भाषा में लिखें.
             if response:
                 st.markdown(response)
                 st.session_state.messages.append(AIMessage(content=str(response)))
-                        st.session_state.mic_key_counter += 1
-                        st.rerun()
+                    
+                        
         
 
