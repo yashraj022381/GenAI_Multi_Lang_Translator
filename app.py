@@ -116,6 +116,10 @@ if audio and audio.get('bytes'):
             ext = "wav"
             mime = "audio/wav"
 
+        ext = ext.replace("/", " ").replace("audio", " ").strip(".")
+        if ext not in ["wav", "ogg", "webm", "mp4", "m4a"]:
+            ext = "wav"
+
         audio_filename = f"temp_audio.{ext}"
 
         with open(audio_filename, "wb") as f:
