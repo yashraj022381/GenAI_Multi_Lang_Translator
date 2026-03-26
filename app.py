@@ -101,8 +101,10 @@ def get_ai_response(prompt):
     except:
         return f"Error: {str(e)}"
 
+if "mic_key_counter" not in st.session_state:
+    st.session_state.mic_key_counter = 0
 # Mic input button
-audio = mic_recorder(start_prompt="🎤 Start recording", stop_prompt="🛑 Stop", just_once = True, use_container_width = True, key='recorder')
+audio = mic_recorder(start_prompt="🎤 Start recording", stop_prompt="🛑 Stop", just_once = True, use_container_width = True, key=f'recorder_{st.session_state.mic_key_counter}')
 
 if audio and audio.get('bytes'):
     try:
